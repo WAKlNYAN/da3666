@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
-const commandLineArgs = require('command-line-args')
-const commandLineUsage = require('command-line-usage')
-const fs = require('fs');
+const commandLineArgs = require('command-line-args');
+const commandLineUsage = require('command-line-usage');
 const Store = require('./lib/Store.js');
 const contentTypes = {
   base: require('./lib/contentType/base.js'),
   user: require('./lib/contentType/user.js'),
 };
+const {
+  add,
+  user,
+} = require('./lib/util');
 
 const optionDefinitions = [
   {
@@ -60,30 +63,19 @@ if (options.help || Object.keys(options).length < 1) {
 } else if (options.adduser) {
   const store = new Store();
   const please = store.processEvent.bind(store);
-  store.loadEventsFromFile(options.db).then(() => {
-    console.log(please(add(user(options.adduser))));
+  store.loadEventsFromFile(options.db)
+    .catch(() => {
+      console.error('Creating a new db file');
+    })
+    .finally(() => {
+      console.log(please(add(user(options.adduser))));
 
-    console.log(store.entities)
+      console.log(store.entities)
 
-    store.saveEventsToFile(options.db).then(() => {
-      console.log('Saved');
+      store.saveEventsToFile(options.db).then(() => {
+        console.log('Saved');
+      });
     });
-  });
 } else {
   console.error('?');
-}
-
-function add(content) {
-  if (content.isValid()) {
-    return {
-      sourceId: -1,
-      ADD: content,
-    };
-  } else {
-    return `Content not added`;
-  }
-}
-
-function user(args) {
-  return new contentTypes.user(args);
 }
