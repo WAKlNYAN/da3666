@@ -2,15 +2,7 @@
 
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
-const Store = require('./lib/Store.js');
-const contentTypes = {
-  base: require('./lib/contentType/base.js'),
-  user: require('./lib/contentType/user.js'),
-};
-const {
-  add,
-  user,
-} = require('./lib/util');
+const { setOptions, addUser } = require('./lib/da3000');
 
 const optionDefinitions = [
   {
@@ -20,7 +12,8 @@ const optionDefinitions = [
     description: 'Display this usage guide.'
   },
   {
-    name: 'db',
+    name: 'file',
+    alias: 'f',
     type: String,
     multiple: false,
     description: 'Database file to use',
@@ -41,11 +34,11 @@ const optionDefinitions = [
 ]
 
 const options = commandLineArgs(optionDefinitions)
-
+const noOptions = Object.keys(options).length < 1;
 if (!options.db) options.db = './db.json';
-console.log(`DB: ${options.db}`);
+setOptions(options);
 
-if (options.help || Object.keys(options).length < 1) {
+if (options.help || noOptions) {
   const usage = commandLineUsage([
     {
       header: 'DA3666',
@@ -56,26 +49,11 @@ if (options.help || Object.keys(options).length < 1) {
       optionList: optionDefinitions
     },
     {
-      content: 'Project home: {underline https://github.com/WAKlNYAN/da3666}'
+      content: 'Project home: {underline https://github.com/WAKlNYAN/da3666}\n'+
+        `Database File: ${options.db}`
     }
   ])
   console.log(usage)
 } else if (options.adduser) {
-  const store = new Store();
-  const please = store.processEvent.bind(store);
-  store.loadEventsFromFile(options.db)
-    .catch(() => {
-      console.error('Creating a new db file');
-    })
-    .finally(() => {
-      console.log(please(add(user(options.adduser))));
-
-      console.log(store.entities)
-
-      store.saveEventsToFile(options.db).then(() => {
-        console.log('Saved');
-      });
-    });
-} else {
-  console.error('?');
+  addUser(options.adduser);
 }
