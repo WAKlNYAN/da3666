@@ -39,6 +39,6 @@ Object {
     0,
   ],
   "text": "Hello, sue.",
-  "type": 0,
+  "type": 4,
 }
 `;
