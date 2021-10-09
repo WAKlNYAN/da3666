@@ -2,7 +2,10 @@
   "dependencies": {
     "command-line-args": "^5.2.0",
     "command-line-usage": "^6.1.1",
-    "jest": "^27.2.4"
+    "hash.js": "^1.1.7",
+    "jest": "^27.2.4",
+    "rpc-websockets": "^7.4.15",
+    "unixcrypt": "^1.0.13"
   },
   "scripts": {
     "test": "jest",
