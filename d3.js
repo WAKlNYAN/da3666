@@ -11,6 +11,7 @@ const {
 } = require('./config');
 const Server = require('./lib/Server');
 const Client = require('./lib/Client');
+const { mix } = require('./lib/mixin');
 
 const optionDefinitions = [
   {
