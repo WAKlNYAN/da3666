@@ -2,7 +2,6 @@
 
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
-const { setOptions, mockHTTP } = require('./lib/da3000');
 const {
   EVENT_TYPE_ANY,
   EVENT_TYPE_ADD,
@@ -17,7 +16,8 @@ const {
   debug: {
     any: debugAny,
     cli: debug,
-  }
+  },
+  db,
 } = require('./config');
 const eventClasses = require('./lib/model/events');
 const entityClasses = require('./lib/model/entities');
@@ -61,8 +61,7 @@ const optionDefinitions = [
 
 const options = commandLineArgs(optionDefinitions)
 const noOptions = Object.keys(options).length < 1;
-if (!options.db) options.db = './db.json';
-setOptions(options);
+if (!options.db) options.db = db;
 
 if (options.help || noOptions) {
   const usage = commandLineUsage([
@@ -86,49 +85,38 @@ if (options.help || noOptions) {
     username: 'Bob',
     password: 'xyzzy',
   });
-  function addEntity(entity) {
-    return client.call('addEntity', entity);
-  }
+  ['getEntityById', 'addEntity'].forEach(
+    method => {
+      global[method] = (args) => (
+        client
+          .call(method, args)
+          .then(console.log)
+          .catch(log)
+      )
+    }
+  );
+
   server
     .initialize()
     .then(() => client.initialize())
     .then(() => {
       if (options.adduser) {
-        addUser(options.adduser);
+        console.log('Nope');
       } else if (options.test) {
-        client
-          .call('getEntityById', { id: 1 })
-          .then(console.log)
-          .catch(log)
-        ;
+        client.addCommentToEntity({
+          originalEntity: {
+            id: 1
+          },
+          commentEntity: {
+            text: 'xyzzy'
+          }
+        }).then(console.log).catch(log);
       } else if (options.entity) {
-        client
-          .call('getEntityById', { id: parseInt(options.entity) })
-          .then(console.log)
-          .catch(log)
-        ;
+        const id = parseInt(options.entity);
+        getEntityById({ id });
       }
-    });
-}
-
-function addUser(username) {
-  return mockHTTP(makeEvent(EVENT_TYPE_ADD, ENTITY_TYPE_USER, username));
-}
-
-function mutateUser(args) {
-  return mockHTTP(makeEvent(EVENT_TYPE_MUTATE, ENTITY_TYPE_MUTATION, args));
-}
-
-function addComment(args) {
-  return mockHTTP(makeEvent(EVENT_TYPE_ADD, ENTITY_TYPE_COMMENT, args));
-}
-
-function makeEvent(eventType, entityType, payload) {
-  const event = new eventClasses[eventType](
-    new entityClasses[entityType](payload)
-  );
-
-  return JSON.stringify(event);
+    })
+  ;
 }
 
 function log() {
