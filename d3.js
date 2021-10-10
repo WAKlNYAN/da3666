@@ -3,24 +3,12 @@
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage');
 const {
-  EVENT_TYPE_ANY,
-  EVENT_TYPE_ADD,
-  EVENT_TYPE_DELETE,
-  EVENT_TYPE_MUTATE,
-
-  ENTITY_TYPE_USER,
-  ENTITY_TYPE_COMMENT,
-  ENTITY_TYPE_MUTATION,
-} = require('./constants');
-const {
   debug: {
     any: debugAny,
     cli: debug,
   },
   db,
 } = require('./config');
-const eventClasses = require('./lib/model/events');
-const entityClasses = require('./lib/model/entities');
 const Server = require('./Server');
 const Client = require('./Client');
 
