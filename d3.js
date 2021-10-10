@@ -9,8 +9,8 @@ const {
   },
   db,
 } = require('./config');
-const Server = require('./Server');
-const Client = require('./Client');
+const Server = require('./lib/Server');
+const Client = require('./lib/Client');
 
 const optionDefinitions = [
   {
@@ -90,8 +90,9 @@ if (options.help || noOptions) {
     .then(() => {
       if (options.adduser) {
         console.log('Nope');
+        return Promise.resolve();
       } else if (options.test) {
-        client.addCommentToEntity({
+        return client.addCommentToEntity({
           originalEntity: {
             id: 1
           },
@@ -101,8 +102,13 @@ if (options.help || noOptions) {
         }).then(console.log).catch(log);
       } else if (options.entity) {
         const id = parseInt(options.entity);
-        getEntityById({ id });
+        return getEntityById({ id });
       }
+    })
+    .then(() => {
+      client.close();
+      server.close();
+      process.exit();
     })
   ;
 }
