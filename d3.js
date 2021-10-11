@@ -88,13 +88,14 @@ if (options.help || noOptions) {
     .then(() => client.initialize())
     .then(() => {
       const {
-        getEntityById
+        getEntityById,
+        addCommentToEntity,
       } = rpcMethods;
       if (options.adduser) {
         console.log('Nope');
         return Promise.resolve();
       } else if (options.test) {
-        return client.call('addCommentToEntity', {
+        return addCommentToEntity({
           originalEntity: {
             id: 1
           },
