@@ -74,26 +74,21 @@ if (options.help || noOptions) {
     username: 'Bob',
     password: 'xyzzy',
   });
-  ['getEntityById', 'addEntity'].forEach(
-    method => {
-      global[method] = (args) => (
-        client
-          .call(method, args)
-          .then(console.log)
-          .catch(log)
-      )
-    }
-  );
+
+  const rpcMethods = client.getRPCMethods();
 
   server
     .initialize()
     .then(() => client.initialize())
     .then(() => {
+      const {
+        getEntityById
+      } = rpcMethods;
       if (options.adduser) {
         console.log('Nope');
         return Promise.resolve();
       } else if (options.test) {
-        return client.addCommentToEntity({
+        return client.call('addCommentToEntity', {
           originalEntity: {
             id: 1
           },
@@ -103,7 +98,7 @@ if (options.help || noOptions) {
         }).then(console.log).catch(log);
       } else if (options.entity) {
         const id = parseInt(options.entity);
-        return getEntityById({ id });
+        return getEntityById({ id }).then(console.log);
       }
     })
     .then(() => {
