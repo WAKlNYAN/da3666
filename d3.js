@@ -45,6 +45,12 @@ const optionDefinitions = [
     alias: 't',
     type: Boolean,
     description: 'Run Test'
+  },
+  {
+    name: 'rpc',
+    alias: 'r',
+    type: Boolean,
+    description: 'List RPC methods'
   }
 ]
 
@@ -99,6 +105,9 @@ if (options.help || noOptions) {
       } else if (options.entity) {
         const id = parseInt(options.entity);
         return getEntityById({ id }).then(console.log);
+      } else if (options.rpc) {
+        console.log(Object.keys(rpcMethods));
+        return false;
       }
     })
     .then(() => {
