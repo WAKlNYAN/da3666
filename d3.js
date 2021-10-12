@@ -30,17 +30,26 @@ if (options.help || noOptions) {
     password: 'xyzzy',
   });
 
-  const rpcMethods = client.getRPCMethods();
+  const rpcMethods = client.rpcMethods();
+  const {
+    getEntityById,
+    addCommentToEntity,
+    beSilly,
+  } = Object
+    .keys(rpcMethods)
+    .reduce((methods, method) => ({
+      ...methods,
+      [method]: (...args) => {
+        log(`Calling ${method}`);
+        return rpcMethods[method](...args);
+      },
+    }), {})
+  ;
 
   server
     .initialize()
     .then(client.initialize.bind(client))
     .then(() => {
-      const {
-        getEntityById,
-        addCommentToEntity,
-      } = rpcMethods;
-
       if (options.test) {
         return addCommentToEntity({
           originalEntity: {
@@ -49,18 +58,26 @@ if (options.help || noOptions) {
           commentEntity: {
             text: 'xyzzy'
           }
-        }).then(console.log).catch(log);
+        });
 
       } else if (options.entity) {
-        const id = parseInt(options.entity);
-        return getEntityById({ id }).then(console.log);
+        return getEntityById({ id: parseInt(options.entity) });
 
       } else if (options.rpc) {
-        console.log(Object.keys(rpcMethods));
-        return false;
+        return Promise.resolve(
+          Object.keys(rpcMethods)
+        );
+
+      } else if (options.silly) {
+        return beSilly('xyzzy', 'plugh', [1,2,3]);
+
       }
     })
-    .then(() => {
+    .then((...args) => {
+      console.log(...args);
+    })
+    .catch((error) => log(error))
+    .finally(() => {
       client.close();
       server.close();
       process.exit();

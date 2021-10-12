@@ -36,6 +36,12 @@ const cliOptions = [
     alias: 'r',
     type: Boolean,
     description: 'List RPC methods'
+  },
+  {
+    name: 'silly',
+    alias: 'x',
+    type: Boolean,
+    description: 'Silliness'
   }
 ];
 
