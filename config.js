@@ -57,6 +57,13 @@ module.exports = {
     server: true,
     serverStore: true,
   },
+  features: [
+    'Entity',
+    'Request',
+    'Silly',
+    'WebSocket',
+    'WebSocketAuthentication',
+  ],
   cli: {
     usage: [
       {
