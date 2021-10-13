@@ -30,42 +30,38 @@ if (options.help || noOptions) {
     password: 'xyzzy',
   });
 
-  const rpcMethods = client.rpcMethods();
+  const rpcMethods = client.rpcList();
+
+  const rpc = rpcMethods.reduce((methods, method) => ({
+      ...methods,
+      [method]: (...args) => {
+        log(`Calling ${method}`);
+        return client.rpcCall(method, ...args);
+      },
+    }), {})
+  ;
   const {
     getEntityById,
     addCommentToEntity,
     beSilly,
-  } = Object
-    .keys(rpcMethods)
-    .reduce((methods, method) => ({
-      ...methods,
-      [method]: (...args) => {
-        log(`Calling ${method}`);
-        return rpcMethods[method](...args);
-      },
-    }), {})
-  ;
+  } = rpc;
 
   server
     .initialize()
     .then(client.initialize.bind(client))
     .then(() => {
       if (options.test) {
-        return addCommentToEntity({
-          originalEntity: {
-            id: 1
-          },
-          commentEntity: {
-            text: 'xyzzy'
-          }
-        });
+        return addCommentToEntity(
+          { id: 1 },
+          { text: 'xyzzy' }
+        );
 
       } else if (options.entity) {
         return getEntityById({ id: parseInt(options.entity) });
 
       } else if (options.rpc) {
         return Promise.resolve(
-          Object.keys(rpcMethods)
+          rpcMethods
         );
 
       } else if (options.silly) {
